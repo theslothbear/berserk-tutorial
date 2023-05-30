@@ -43,7 +43,7 @@
 
 ## 5.) Обновление учетной записи до учетной записи "BOT".
 
-Создаем новый файл, например ```bot.py``` и вводим туда следующий код:
+Создаем новый файл, например ```upgrade_bot.py``` и вводим туда следующий код:
 
 ```
 import berserk
@@ -55,11 +55,54 @@ client.account.upgrade_to_bot()
 print('Done!')
 ```
 
-Сохранив изменения, переходим в консоль и запускаем наш код: ```python bot.py``` или ```python3 bot.py```. В случае успешного выполнения, на lichess рядом с вашим ником должна появиться надпись "BOT", а в консоли выведено "Done!"
+Сохранив изменения, переходим в консоль и запускаем наш код: ```python upgrade_bot.py``` или ```python3 upgrade_bot.py```. В случае успешного выполнения, на lichess рядом с вашим ником должна появиться надпись "BOT", а в консоли выведено "Done!"
 
 ![image](https://github.com/theslothbear/berserk-tutorial/assets/128232763/3466dd08-d3d3-454a-b5a1-c738ca11a376)
 
+## 6.) Общение в чате и делание ходов.
 
+Создадим новый файл ```bot.py``` и импортируем необходимые библиотеки:
+
+```
+import berserk
+import threading
+```
+Создадим переменную client:
+```
+session = berserk.TokenSession('ЗДЕСЬ_ВАШ_ТОКЕН')
+client = berserk.Client(session=session)
+```
+Теперь опишем класс, который будет осуществлять проверку изменений состояния игры:
+```
+class Game(threading.Thread):
+    def __init__(self, client, game_id, **kwargs):
+        super().__init__(**kwargs)
+        self.game_id = game_id
+        self.client = client
+        self.stream = client.bots.stream_game_state(game_id)
+        self.current_state = next(self.stream)
+
+    def run(self):
+        for event in self.stream:
+            if event['type'] == 'gameState':
+                self.handle_state_change(event)
+            elif event['type'] == 'chatLine':
+                self.handle_chat_line(event)
+                
+    def handle_state_change(self, state):
+        pass
+    def handle_chat_line(self, line):
+        pass
+      
+```
+Нам необходимо каким-либо образом взаимодействовать с созданным классом. Для этого ниже пишем следующий код:
+```
+for event in client.bots.stream_incoming_events():
+	  if event['type'] == 'challenge':
+		    if event['challenge']['variant']['key'] == 'standard':
+			      client.bots.accept_challenge(event['challenge']['id'])
+```
+Теперь бот может принимать все вызовы со стандартным вариантом шахмат. 
 
 
 
