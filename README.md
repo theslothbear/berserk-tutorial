@@ -59,7 +59,7 @@ print('Done!')
 
 ![image](https://github.com/theslothbear/berserk-tutorial/assets/128232763/3466dd08-d3d3-454a-b5a1-c738ca11a376)
 
-## 6.) Общение в чате и делание ходов.
+## 6.) Класс Game. Принятие вызовов.
 
 Создадим новый файл ```bot.py``` и импортируем необходимые библиотеки:
 
