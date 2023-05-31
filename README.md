@@ -120,6 +120,10 @@ for event in client.bots.stream_incoming_events():
 game = Game(client, event['challenge']['id'])
 game.start()
 ```
+Кстати, даже в таком банальном коде в документации имеется ошибка:
 
+![image](https://github.com/theslothbear/berserk-tutorial/assets/128232763/00b4de98-9e46-4c75-b78d-39cdc7940adb)
+
+Если вы попробуете написать так, то программа завершится ошибкой KeyError: 'id'
 
 
