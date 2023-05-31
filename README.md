@@ -8,6 +8,7 @@
 ### 3.) [Создание аккаунта и получение API токена](#пункт3)
 ### 4.) [Обновление учетной записи до учетной записи BOT](#пункт4)
 ### 5.) [Класс Game. Принятие вызовов](#пункт5)
+### 6.) [Общение в чате и делание ходов](#пункт6)
 
 
 <a name="пункт1"></a> 
@@ -86,10 +87,11 @@ client = berserk.Client(session=session)
 Теперь опишем класс, который будет осуществлять проверку изменений состояния игры:
 ```
 class Game(threading.Thread):
-    def __init__(self, client, game_id, **kwargs):
+    def __init__(self, client, game_id, color, **kwargs):
         super().__init__(**kwargs)
         self.game_id = game_id
         self.client = client
+	self.color = color
         self.stream = client.bots.stream_game_state(game_id)
         self.current_state = next(self.stream)
 
@@ -107,6 +109,7 @@ class Game(threading.Thread):
       
 ```
 Чтобы бот мог играть партии, ему необходимо принимать вызовы:
+<a name="переменная_event"></a>
 ```
 for event in client.bots.stream_incoming_events():
 	  if event['type'] == 'challenge':
@@ -117,7 +120,7 @@ for event in client.bots.stream_incoming_events():
 
 После принятия вызова необходимо начать взаимодействие с созданным классом Game:
 ```
-game = Game(client, event['challenge']['id'])
+game = Game(client, event['challenge']['id'], event['challenge']['finalColor'])
 game.start()
 ```
 Кстати, даже в таком банальном коде в документации имеется ошибка:
@@ -126,4 +129,29 @@ game.start()
 
 Если вы попробуете написать так, то программа завершится ошибкой KeyError: 'id'
 
+<a name="пункт6"></a>
+
+# 6.) Общение в чате и делание ходов.
+
+Для начала научим нашего бота говорить. Для этого изменим функцию handle_chat_line():
+```
+def handle_chat_line(self, line):
+    if line['username'].upper() != 'ИМЯ_ВАШЕГО_БОТА'.upper():
+    	client.bots.post_message(self.game_id, 'Привет! Теперь я умею писать в чате:)')
+```
+Теперь бот будет отвечать на любое текстовое сообщение в чате.
+
+![image](https://github.com/theslothbear/berserk-tutorial/assets/128232763/25be85f5-acea-4562-b8ae-a1dfd0726258)
+
+Теперь перейдем к деланию ходов. Для этого у нас есть другая функция, handle_state_change(). Точнее говоря, ход вы можете сделать и в любом другом месте используя ``` client.bots.make_move(self.game_id, 'g2g4') ```. Однако правильнее написать будет так:
+```
+def handle_state_change(self, state):
+    if self.color.upper() == 'BLACK':
+    	if len(state['moves'].split()) % 2 == 0:
+	    client.bots.make_move(self.game_id, 'g2g4')
+		
+```
+Теперь наш бот может делать первый ход g2-g4 за белых. 
+
+Важно! LiChess передает данные (а точнее [переменную event](#переменная_event)) от лица пользователя, поэтому в ```self.color``` у нас хранится цвет фигур противника. При сильном желании, это можно изменить, но я не вижу смысла в этом.
 
