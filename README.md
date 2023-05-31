@@ -106,7 +106,7 @@ class Game(threading.Thread):
         pass
       
 ```
-Нам необходимо каким-либо образом взаимодействовать с созданным классом. Для этого пишем следующий код:
+Чтобы бот мог играть партии, ему необходимо принимать вызовы:
 ```
 for event in client.bots.stream_incoming_events():
 	  if event['type'] == 'challenge':
@@ -115,6 +115,11 @@ for event in client.bots.stream_incoming_events():
 ```
 Теперь наш бот может принимать все вызовы со стандартным вариантом шахмат. 
 
+После принятия вызова необходимо начать взаимодействие с созданным классом Game:
+```
+game = Game(client, event['challenge']['id'])
+game.start()
+```
 
 
 
