@@ -10,6 +10,7 @@
 ### 5.) [Класс Game. Принятие вызовов](#пункт5)
 ### 6.) [Общение в чате и делание ходов](#пункт6)
 ### 7.) [RandomMover Bot](#пункт7)
+### 8.) [Что дальше?](#пункт8)
 
 
 <a name="пункт1"></a> 
@@ -69,7 +70,8 @@ print('Done!')
 
 Сохранив изменения, переходим в консоль и запускаем наш код: ```python upgrade_bot.py``` или ```python3 upgrade_bot.py```. В случае успешного выполнения, на lichess рядом с вашим ником должна появиться надпись "BOT", а в консоли выведено "Done!"
 
-![image](https://github.com/theslothbear/berserk-tutorial/assets/128232763/3466dd08-d3d3-454a-b5a1-c738ca11a376)
+![image](https://github.com/theslothbear/berserk-tutorial/assets/128232763/53cee44c-6d0e-4490-999d-1c705abb7970)
+
 
 <a name="пункт5"></a>
 # 5.) Класс Game. Принятие вызовов.
@@ -117,7 +119,7 @@ for event in client.bots.stream_incoming_events():
 		    if event['challenge']['variant']['key'] == 'standard':
 			      client.bots.accept_challenge(event['challenge']['id'])
 ```
-Теперь наш бот может принимать все вызовы со стандартным вариантом шахмат. 
+Готово! Наш бот может принимать все вызовы со стандартным вариантом шахмат. 
 
 После принятия вызова необходимо начать взаимодействие с созданным классом Game:
 ```
@@ -229,3 +231,15 @@ elif self.color.upper() == 'WHITE' and len(state['moves'].split()) % 2 == 1:
 ```
 
 [Полный код бота](https://github.com/theslothbear/berserk-tutorial/blob/main/random_mover_bot.py)
+
+<a name="пункт8"></a>
+# 8.) Что дальше?
+
+Дальше - только ваша фантазия :). 
+Вот несколько полезных ссылок, которые помогут вам с дальнейшим изучением:
+
+* [Berserk Github](https://github.com/lichess-org/berserk)
+* [Документация Berserk](https://lichess-org.github.io/berserk/)
+* [Документация для разработчиков](https://lichess-org.github.io/berserk/api.html)
+* [Документация библиотеки chess](https://python-chess.readthedocs.io/en/latest/)
+* [Пример создания простого ИИ на js](https://habr.com/ru/companies/skillbox/articles/437524/)
