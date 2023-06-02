@@ -144,7 +144,7 @@ def handle_chat_line(self, line):
 
 ![image](https://github.com/theslothbear/berserk-tutorial/assets/128232763/25be85f5-acea-4562-b8ae-a1dfd0726258)
 
-Теперь перейдем к деланию ходов. Для этого у нас есть другая функция, handle_state_change(). Точнее говоря, ход вы можете сделать и в любом другом месте используя ``` client.bots.make_move(self.game_id, 'g2g4') ```. Однако правильнее написать будет так:
+Теперь перейдем к деланию ходов. Для этого у нас есть другая функция, handle_state_change(). Точнее говоря, ход вы можете сделать и в любом другом месте используя ``` client.bots.make_move(self.game_id, 'ход') ```.
 ```
 def handle_state_change(self, state):
     if self.color.upper() == 'BLACK':
@@ -154,10 +154,78 @@ def handle_state_change(self, state):
 ```
 Теперь наш бот может делать первый ход g2-g4 за белых. 
 
-Важно! LiChess передает данные (а точнее [переменную event](#переменная_event)) от лица пользователя, поэтому в ```self.color``` у нас хранится цвет фигур противника. При сильном желании, это можно изменить, но, честно говоря, автор не видит в этом смысла.
+Важно! LiChess передает данные (в нашем случае [переменную event](#переменная_event)) от лица пользователя (не от бота), поэтому в ```self.color``` у нас хранится цвет фигур противника. При сильном желании, это можно изменить, но, честно говоря, автор не видит в этом смысла.
 
 <a name="пункт7"></a>
 # 7.) RandomMover Bot
 
-Теперь, используя уже ранее упомянутые функции и библиотеку chess, мы легко можем написать бота, который отвечает случайными ходами. Для этого изменим функцию  handle_state_change(): {дайте админу поспать, он потом допишет, честно}
+Теперь, используя уже ранее упомянутые функции и библиотеку chess, мы легко можем написать бота, который отвечает случайными ходами. Для этого изменим функцию  handle_state_change(): 
+```
+def handle_state_change(self, state):
+    if self.color.upper() == 'BLACK' and len(state['moves'].split()) % 2 == 0:
+        board = chess.Board()
+        for move in state['moves'].split():
+            board.push(chess.Move.from_uci(move))
+            sp = []
+            for a in board.legal_moves:
+        	sp.append(a)
+            if sp:
+        	try:
+        	    client.bots.make_move(self.game_id, random.choice(sp))
+        	except Exception as e:
+        	    print(e)
+```
+Давайте разберемся, что здесь происходит.
 
+ ``` if self.color.upper() == 'BLACK' and len(state['moves'].split()) % 2 == 0: ```
+
+Проверяем, если ход белых, то играем ли мы за белых. Действительно, при каждом ходе белых число сделанных ходов должно быть четно.
+
+
+*** 
+``` 
+board = chess.Board()
+for move in state['moves'].split():
+    board.push(chess.Move.from_uci(move)) 
+```
+
+Создаём шахматную доску с начальной позицией и по-очереди делаем на доске ходы, сделанные в партии.
+
+
+***
+``` 
+sp = []
+for a in board.legal_moves:
+    sp.append(a)
+```
+
+Создаем пустой список и добавляем все возможные ходы на доске
+
+*** 
+``` 
+if sp:
+    try:
+    	client.bots.make_move(self.game_id, random.choice(sp))
+    except Exception as e:
+    	print(e)
+```
+
+Если список не пустой, делаем ход, случайно выбранный из списка sp с помощью random.choice(). Если список будет пустой, соответственно, на доске нельзя сделать никакой ход, то есть игра закончена.
+
+Аналогичный код пишем в случае, если self.color = 'white':
+```
+elif self.color.upper() == 'WHITE' and len(state['moves'].split()) % 2 == 1:
+    board = chess.Board()
+    for move in state['moves'].split():
+    	board.push(chess.Move.from_uci(move)
+	sp = []
+	for a in board.legal_moves:
+	    sp.append(a)
+	    if sp:
+	    	try:
+		    client.bots.make_move(self.game_id, random.choice(sp))
+		except Exception as e:
+		    print(e)
+```
+
+[Полный код бота](https://github.com/theslothbear/berserk-tutorial/blob/main/random_mover_bot.py)
