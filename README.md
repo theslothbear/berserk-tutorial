@@ -222,7 +222,7 @@ if sp:
 elif self.color.upper() == 'WHITE' and len(state['moves'].split()) % 2 == 1:
     board = chess.Board()
     for move in state['moves'].split():
-    	board.push(chess.Move.from_uci(move)
+    	board.push(chess.Move.from_uci(move))
 	sp = []
 	for a in board.legal_moves:
 	    sp.append(a)
